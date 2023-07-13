@@ -10,6 +10,7 @@ import torch
 from basicsr.archs.rrdbnet_arch import RRDBNet
 from basicsr.archs.srvgg_arch import SRVGGNetCompact
 from pathlib import Path
+from PIL import Image as PILImage
 from tungstenkit import BaseIO, Field, Image, Option, define_model
 
 from gfpgan import GFPGANer
@@ -62,14 +63,12 @@ class Output(BaseIO):
         "yapf==0.31.0",
         "basicsr==1.4.2",
         "facexlib==0.2.5",
-        "gfpgan>=1.3.5",
-        "cython",
-        "basicsr>=1.4.2",
-        "facexlib>=0.2.5",
+        "gfpgan==1.3.8",
+        "basicsr==1.4.2",
         "tqdm",
     ],
 )
-class Predictor:
+class RealESRGAN:
     def choose_model(self, scale: float, version: str, tile: int = 0):
         half = True if torch.cuda.is_available() else False
         if version == "General - RealESRGANplus":
@@ -202,7 +201,8 @@ class Predictor:
 
         if img_mode == "RGBA":  # RGBA images should be saved in png format
             extension = "png"
-        out_path = Path(tempfile.mkdtemp()) / f"out.{extension}"
+
+        out_path = Path(tempfile.mkdtemp()) / f"out{extension}"
         cv2.imwrite(str(out_path), output)
         output = Output(enhanced=Image.from_path(out_path))
         return [output]
