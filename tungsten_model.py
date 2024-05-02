@@ -2,7 +2,7 @@
 import os
 import tempfile
 import warnings
-
+import uuid
 warnings.filterwarnings("ignore", module="torchvision", category=UserWarning)
 
 import cv2
@@ -170,7 +170,7 @@ class RealESRGAN:
         print(
             f"img: {img.name}. version: {version}. scale: {scale}. face_enhance: {face_enhance}. tile: {tile}."
         )
-        extension = os.path.splitext(os.path.basename(str(img)))[1]
+
         img = cv2.imread(str(img), cv2.IMREAD_UNCHANGED)
         if len(img.shape) == 3 and img.shape[2] == 4:
             img_mode = "RGBA"
@@ -199,10 +199,8 @@ class RealESRGAN:
                 'If you encounter CUDA out of memory, try to set "tile" to a smaller size, e.g., 400.'
             )
 
-        if img_mode == "RGBA":  # RGBA images should be saved in png format
-            extension = "png"
-
-        out_path = Path(tempfile.mkdtemp()) / f"out{extension}"
+        fname = f"{uuid.uuid4().hex[:8]}.png"
+        out_path = Path(tempfile.mkdtemp()) / fname
         cv2.imwrite(str(out_path), output)
         output = Output(enhanced=Image.from_path(out_path))
         return [output]
